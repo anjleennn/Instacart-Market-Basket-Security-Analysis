@@ -43,20 +43,36 @@ try:
                 clean_res = str(row['consequents']).replace("frozenset({", "").replace("})", "").replace("'", "")
                 st.metric(label="Recommended", value=clean_res)
 
-    # --- 5. GRAPH ---
+   # --- 5. GRAPH ---
     st.header("🕸️ Association Network")
-    fig, ax = plt.subplots(figsize=(10, 6))
+    
+    # Increase figure size for more room
+    fig, ax = plt.subplots(figsize=(12, 8)) 
+    
     G = nx.DiGraph()
-    for i, row in rules.head(15).iterrows():
+    # Using head(10) instead of 15 to reduce clutter
+    for i, row in rules.head(10).iterrows():
         ant = str(row['antecedents']).replace("frozenset({", "").replace("})", "").replace("'", "")
         con = str(row['consequents']).replace("frozenset({", "").replace("})", "").replace("'", "")
         G.add_edge(ant, con)
     
-    pos = nx.spring_layout(G)
-    nx.draw(G, pos, with_labels=True, node_color='skyblue', ax=ax)
+    # K=1.5 increases the distance between nodes
+    pos = nx.spring_layout(G, k=1.5, iterations=50)
+    
+    nx.draw(G, pos, 
+            with_labels=True, 
+            node_color='#ADD8E6', # A clean light blue
+            node_size=2500,       # Slightly larger nodes
+            font_size=10,         # Clearer text
+            font_weight='bold',
+            edge_color='gray',
+            arrowsize=20,
+            ax=ax)
+            
     st.pyplot(fig)
 
 # --- 6. THE ERROR HANDLER (This was the syntax error!) ---
 except Exception as e:
     st.error(f"Error: {e}")
+
     st.info("Check if rules_output.csv exists in your Documents folder.")
